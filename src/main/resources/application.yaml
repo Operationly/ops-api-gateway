@@ -1,0 +1,48 @@
+server:
+  port: 9090
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: api-gateway
+  cache:
+    type: redis
+    cache-names: userContext
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  config:
+    import: "optional:configserver:http://localhost:9296"
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-management
+              uri: lb://USER-MANAGEMENT
+              predicates:
+                - Path=/operationly/user-management/**
+
+workos:
+  api-key: ${WORKOS_API_KEY}
+  client-id: ${WORKOS_CLIENT_ID}
+  jwks-uri: https://api.workos.com/sso/jwks/${WORKOS_CLIENT_ID}
+
+whitelisted:
+  urls:
+#    - /operationly/user-management/api/v1/users/sync
+#    - /operationly/user-management/api/v1/users/context
+    - /actuator/**
+
+
+logging:
+  level:
+    org.springframework.cloud.gateway: ERROR
+    reactor.netty.http.client: DEBUG
+
+management:
+  zipkin:
+    tracing:
+      endpoint: ""
